@@ -1,3 +1,3 @@
--- Delete the database 'hbtn_0c_0'
--- If 'hbtn_0c_0' doesn't exist, script should not fail
-DROP DATABASE IF EXISTS hbtn_0c_0;
+--  Creates the database 'hbtn_0c_0'
+-- If database already exists, the script should not fail
+CREATE DATABASE IF NOT EXISTS hbtn_0c_0;
