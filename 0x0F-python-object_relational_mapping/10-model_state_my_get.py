@@ -1,32 +1,22 @@
 #!/usr/bin/python3
-
-""" 10-model_state_my_get module """
-
-if __name__ == "__main__":
-
-    from sqlalchemy import create_engine
-    from sqlalchemy.ext.declarative import declarative_base
-    from sqlalchemy.orm import sessionmaker
-    import sys
-    from model_state import Base, State
-
-    inp = sys.argv
-    if len(inp) < 5 or ";" in inp[4]:
-        exit(1)
-
-    conn_str = "mysql+mysqldb://{}:{}@localhost:3306/{}"
-    engine = create_engine(conn_str.format(inp[1], inp[2], inp[3]))
-    Session = sessionmaker(engine)
-
-    Base.metadata.create_all(engine)
-
+"""This script prints the State object with the name
+passed as argument from the database hbtn_0e_6_usa"""
+from model_state import State
+import sys
+from sqlalchemy import create_engine, asc
+from sqlalchemy.orm import sessionmaker
+if __name__ == '__main__':
+    engine = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'.format(
+                            sys.argv[1], sys.argv[2], sys.argv[3]),
+                           pool_pre_ping=True)
+    s_name = sys.argv[4]
+    Session = sessionmaker(bind=engine)
     session = Session()
-
-    my_query = session.query(State).filter(State.name.like(inp[4])).all()
-
-    if len(my_query) == 0:
+    states = session.query(State).filter(
+        State.name == s_name
+    ).order_by(asc(State.id)).all()
+    if not states:
         print("Not found")
     else:
-        print(my_query[0].id)
-
-    session.close()
+        for state in states:
+            print(f"{state.id}")

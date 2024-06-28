@@ -1,18 +1,28 @@
 #!/usr/bin/python3
-"""  lists all cities of a state in argument """
+"""This module  takes in the name of a state as an argument
+and lists all cities of that state, using the database hbtn_0e_4_usa"""
 import MySQLdb
 import sys
 
 
 if __name__ == "__main__":
-    db = MySQLdb.connect(host="localhost", user=sys.argv[1],
-                         passwd=sys.argv[2], db=sys.argv[3], port=3306)
-    c = db.cursor()
-    c.execute("""SELECT cities.name FROM
-                cities INNER JOIN states ON states.id=cities.state_id
-                WHERE states.name=%s""", (sys.argv[4],))
-    rows = c.fetchall()
-    tmp = list(row[0] for row in rows)
-    print(*tmp, sep=", ")
-    c.close()
+    username = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
+    state = sys.argv[4]
+    db = MySQLdb.connect(host="localhost", user=username, password=password,
+                         database=database, port=3306)
+    cursor = db.cursor()
+    cursor.execute('SELECT name FROM cities\
+            WHERE cities.state_id = (\
+                SELECT id from states\
+                WHERE name = %(name)s )\
+            ORDER BY cities.id ASC', {'name': state})
+    results = cursor.fetchall()
+    cursor.close()
     db.close()
+    cities = []
+    for result in results:
+        for city in result:
+            cities.append(city)
+    print(", ".join(cities))
